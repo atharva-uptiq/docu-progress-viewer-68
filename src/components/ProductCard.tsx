@@ -6,7 +6,7 @@ import ProgressTracker from './ProgressTracker';
 
 interface ProductCardProps {
   title: string;
-  relationship?: string;
+  relationship: string;
   currentStage: ApplicationStage;
   onClick?: () => void;
 }
@@ -23,7 +23,7 @@ const ProductCard = ({
         <div className="flex justify-between items-start mb-2">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            {relationship && <p className="text-sm text-gray-500">Relationship: {relationship}</p>}
+            <p className="text-sm text-gray-500">Relationship: {relationship}</p>
           </div>
           <ChevronRight className="h-5 w-5 text-gray-400" />
         </div>
