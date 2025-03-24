@@ -24,7 +24,9 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
     { label: 'Loan-to-Value Ratio', value: '75%', description: 'Ratio of loan amount to appraised property value' },
     { label: 'Debt Service Coverage Ratio', value: '1.25', description: 'Measures ability to service debt with cash flow' },
     { label: 'Net Operating Income', value: '$65,000', description: 'Annual income after operating expenses' },
-    { label: 'Cap Rate', value: '6.5%', description: 'Property\'s rate of return on investment' }
+    { label: 'Cap Rate', value: '6.5%', description: 'Property's rate of return on investment' },
+    { label: 'Return on Investment', value: '8.3%', description: 'Annual return on total investment' },
+    { label: 'Break-Even Ratio', value: '82%', description: 'Occupancy rate required to cover expenses' }
   ];
 
   return (
