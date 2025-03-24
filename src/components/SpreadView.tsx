@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FileText, Table, BarChart3, CreditCard, DollarSign, Building, LineChart, ChevronDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -78,7 +79,7 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
     { name: 'Cash-on-Cash Return', value: '9.2%', description: 'Annual Pre-Tax Cash Flow / Total Cash Invested' }
   ];
 
-  // Sample source documents - keep existing data
+  // Sample source documents
   const sourceDocuments: SourceDocument[] = [
     {
       id: "doc1",
@@ -189,6 +190,75 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
     setSelectedSourceDoc(sourceDocuments[randomDocIndex].id);
   };
 
+  const renderSourceDocumentPanel = () => {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full">
+        <div className="border-b border-gray-200 p-4">
+          <h3 className="text-lg font-medium">Source Document</h3>
+        </div>
+
+        <div className="p-4">
+          <Tabs defaultValue="documents" className="w-full">
+            <TabsList className="w-full">
+              <TabsTrigger value="documents" className="flex-1">Document List</TabsTrigger>
+              <TabsTrigger value="preview" className="flex-1">Preview</TabsTrigger>
+            </TabsList>
+            <TabsContent value="documents" className="pt-4">
+              <div className="space-y-2">
+                {sourceDocuments.map((doc) => (
+                  <div 
+                    key={doc.id}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-md cursor-pointer border",
+                      selectedSourceDoc === doc.id ? "border-[#a29f95] bg-gray-50" : "border-gray-200 hover:bg-gray-50"
+                    )}
+                    onClick={() => setSelectedSourceDoc(doc.id)}
+                  >
+                    <div className="flex items-center">
+                      <FileText className="h-5 w-5 text-gray-400 mr-3" />
+                      <div>
+                        <p className="text-sm font-medium">{doc.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {doc.extractedData.length} data points extracted
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="preview" className="pt-4">
+              <div className="bg-gray-100 p-6 rounded-lg flex items-center justify-center h-80">
+                <div className="text-center">
+                  <img 
+                    src={currentSourceDocument.imageUrl} 
+                    alt="Document Preview" 
+                    className="max-h-64 mx-auto mb-4" 
+                  />
+                  <p className="text-sm font-medium">{currentSourceDocument.name}</p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div className="p-4 border-t border-gray-200">
+          <h4 className="text-sm font-medium mb-3">Extracted Data</h4>
+          <div className="max-h-80 overflow-y-auto bg-gray-50 rounded-md p-2">
+            {currentSourceDocument.extractedData.slice(0, 8).map((item, index) => (
+              <div key={index} className="flex justify-between items-center p-2 text-sm border-b border-gray-100 last:border-0">
+                <span className="font-medium">{item.label}</span>
+                <span className="text-[#a29f95]">
+                  {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
@@ -229,9 +299,10 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
         )}
       </div>
 
-      <div className="flex flex-1 overflow-auto">
-        {/* Left side - financial ratios - take full width of column */}
-        <div className="w-full pr-4 overflow-auto">
+      {/* 2:1 Split layout */}
+      <div className="flex flex-1 space-x-4 overflow-hidden">
+        {/* Left side - financial ratios/statement view - takes 2/3 of the space */}
+        <div className="w-2/3 overflow-auto">
           {activeView === 'simplified' ? (
             <>
               <h3 className="text-lg font-medium mb-4">Key Financial Ratios</h3>
@@ -538,10 +609,14 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
             </>
           )}
         </div>
+        
+        {/* Right side - source document panel - takes 1/3 of the space */}
+        <div className="w-1/3 overflow-auto">
+          {renderSourceDocumentPanel()}
+        </div>
       </div>
     </div>
   );
 };
 
 export default SpreadView;
-
