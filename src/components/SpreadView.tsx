@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Table, BarChart3, CreditCard, DollarSign, Building, LineChart, ChevronDown } from 'lucide-react';
+import { FileText, Table, BarChart3, CreditCard, DollarSign, Building, LineChart, ChevronDown, Edit, Save, X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Select, 
@@ -9,6 +9,8 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 interface SpreadItem {
   label: string;
@@ -40,6 +42,15 @@ interface ToggleViewButtonProps {
   label: string;
 }
 
+interface EditHistoryItem {
+  timestamp: string;
+  field: string;
+  category: string;
+  oldValue: string;
+  newValue: string;
+  editedBy: string;
+}
+
 const ToggleViewButton: React.FC<ToggleViewButtonProps> = ({
   active,
   onClick,
@@ -66,6 +77,18 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
   const [activeView, setActiveView] = useState<'simplified' | 'detailed'>('simplified');
   const [statementType, setStatementType] = useState<'operating' | 'balance' | 'cashflow' | 'debtService' | 'propertyAnalysis' | 'rentRoll'>('operating');
   const [selectedSourceDoc, setSelectedSourceDoc] = useState<string>("doc1");
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
+  const [editHistory, setEditHistory] = useState<EditHistoryItem[]>([
+    {
+      timestamp: "2023-07-15 14:32",
+      field: "Rental Income",
+      category: "Revenue",
+      oldValue: "$698,450",
+      newValue: "$712,834",
+      editedBy: "John Smith"
+    }
+  ]);
   
   const financialRatios: FinancialRatio[] = [
     { name: 'DSCR (P&I, Nano Debt Only)', value: '2.34x', description: 'Net Operating Income / Debt Service (Principal & Interest)' },
@@ -183,6 +206,34 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
     setSelectedSourceDoc(sourceDocuments[randomDocIndex].id);
   };
 
+  const handleEditField = (field: string, currentValue: string) => {
+    setEditingField(field);
+    setEditValue(currentValue.replace(/[^\d.]/g, ''));
+  };
+
+  const handleSaveEdit = (field: string, category: string) => {
+    const formattedValue = `$${parseFloat(editValue).toLocaleString()}`;
+    
+    const historyEntry: EditHistoryItem = {
+      timestamp: new Date().toLocaleString(),
+      field,
+      category,
+      oldValue: editingField === "Rental Income" ? "$712,834" : "$0",
+      newValue: formattedValue,
+      editedBy: "Current User"
+    };
+    
+    setEditHistory([historyEntry, ...editHistory]);
+    
+    setEditingField(null);
+    setEditValue("");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingField(null);
+    setEditValue("");
+  };
+
   const renderSourceDocumentPanel = () => {
     return (
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full">
@@ -208,16 +259,42 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
 
         <div className="p-4 border-t border-gray-200">
           <h4 className="text-sm font-medium mb-3">Extracted Data</h4>
-          <div className="max-h-80 overflow-y-auto bg-gray-50 rounded-md p-2">
-            {currentSourceDocument.extractedData.slice(0, 8).map((item, index) => (
-              <div key={index} className="flex justify-between items-center p-2 text-sm border-b border-gray-100 last:border-0">
-                <span className="font-medium">{item.label}</span>
-                <span className="text-[#a29f95]">
-                  {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
-                </span>
-              </div>
-            ))}
+          <div className="bg-gray-50 rounded-md p-3">
+            <div className="flex flex-wrap gap-2">
+              {currentSourceDocument.extractedData.slice(0, 6).map((item, index) => (
+                <Badge key={index} variant="outline" className="text-xs bg-white">
+                  {item.label}: {typeof item.value === 'number' ? item.value.toLocaleString() : item.value}
+                </Badge>
+              ))}
+            </div>
           </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEditHistory = () => {
+    if (editHistory.length === 0) return null;
+    
+    return (
+      <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border-b border-gray-200 bg-gray-50 p-3">
+          <h3 className="text-sm font-medium">Edit History</h3>
+        </div>
+        <div className="max-h-48 overflow-y-auto">
+          {editHistory.map((item, index) => (
+            <div key={index} className="p-3 border-b border-gray-100 last:border-0">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs font-medium">{item.field} ({item.category})</span>
+                <span className="text-xs text-gray-500">{item.timestamp}</span>
+              </div>
+              <div className="flex items-center text-sm">
+                <span className="text-red-500 line-through mr-2">{item.oldValue}</span>
+                <span className="text-green-600">{item.newValue}</span>
+                <span className="text-xs text-gray-500 ml-2">by {item.editedBy}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -317,9 +394,40 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
                         <tr>
                           <td colSpan={7} className="border border-gray-200 px-4 py-2 text-sm font-medium bg-gray-50">Revenue:</td>
                         </tr>
-                        <tr className="cursor-pointer hover:bg-gray-50" onClick={() => handleStatementClick({ type: 'revenue' })}>
-                          <td className="border border-gray-200 px-4 py-2 text-sm">Rental Income</td>
-                          <td className="border border-gray-200 px-4 py-2 text-sm text-right text-blue-600">$712,834</td>
+                        <tr className="hover:bg-gray-50">
+                          <td className="border border-gray-200 px-4 py-2 text-sm">
+                            <div className="flex items-center">
+                              <span>Rental Income</span>
+                              {editingField !== "Rental Income" && (
+                                <button 
+                                  onClick={() => handleEditField("Rental Income", "$712,834")}
+                                  className="ml-2 text-[#a29f95] hover:text-blue-600"
+                                >
+                                  <Edit size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2 text-sm text-right text-blue-600">
+                            {editingField === "Rental Income" ? (
+                              <div className="flex items-center justify-end space-x-1">
+                                <span>$</span>
+                                <Input 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  className="w-20 h-6 text-xs p-1 text-right"
+                                />
+                                <button onClick={() => handleSaveEdit("Rental Income", "Revenue")} className="text-green-600">
+                                  <Save size={14} />
+                                </button>
+                                <button onClick={handleCancelEdit} className="text-red-600">
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ) : (
+                              "$712,834"
+                            )}
+                          </td>
                           <td className="border border-gray-200 px-4 py-2 text-sm text-right">$23.10</td>
                           <td className="border border-gray-200 px-4 py-2 text-sm text-right text-blue-600">$727,583</td>
                           <td className="border border-gray-200 px-4 py-2 text-sm text-right">$23.58</td>
