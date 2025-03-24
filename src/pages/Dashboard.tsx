@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,7 @@ import TaskList from '@/components/TaskList';
 import ContactCard from '@/components/ContactCard';
 import DocumentUpload from '@/components/DocumentUpload';
 import ProductCard from '@/components/ProductCard';
+import { ApplicationStage } from '@/components/ProgressTracker';
 
 // Required document types
 interface RequiredDocument {
@@ -77,27 +79,25 @@ const Dashboard = () => {
     toast.success(`Additional document "${file.name}" uploaded successfully`);
   };
   
+  // Product data with appropriate ApplicationStage types
   const products = [
     {
       id: '1',
-      name: 'Bridge Loan',
-      description: 'Short-term financing for immediate needs.',
-      status: 'Active',
-      dueDate: '2023-12-31',
+      title: 'Bridge Loan',
+      relationship: 'Short-term financing for immediate needs',
+      currentStage: 'application' as ApplicationStage,
     },
     {
       id: '2',
-      name: 'Acquisition Loan',
-      description: 'Financing to acquire commercial properties.',
-      status: 'Pending',
-      dueDate: '2024-01-15',
+      title: 'Acquisition Loan',
+      relationship: 'Financing to acquire commercial properties',
+      currentStage: 'pre-flight' as ApplicationStage,
     },
     {
       id: '3',
-      name: 'Construction Loan',
-      description: 'Funding for new construction projects.',
-      status: 'Review',
-      dueDate: '2024-02-28',
+      title: 'Construction Loan',
+      relationship: 'Funding for new construction projects',
+      currentStage: 'loi' as ApplicationStage,
     },
   ];
 
@@ -210,7 +210,12 @@ const Dashboard = () => {
                   <h3 className="text-lg font-medium mb-4">Loan Products</h3>
                   <div className="space-y-4">
                     {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                      <ProductCard 
+                        key={product.id} 
+                        title={product.title}
+                        relationship={product.relationship}
+                        currentStage={product.currentStage}
+                      />
                     ))}
                   </div>
                 </CardContent>
