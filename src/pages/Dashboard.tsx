@@ -70,6 +70,17 @@ const Dashboard = () => {
     }
   };
 
+  // List of required documents
+  const requiredDocuments = [
+    "Formation docs for entity owning property",
+    "Last 3 years of personal tax returns of Guarantor",
+    "Current personal financial statement of Guarantor",
+    "Liquidity statements (investment and depository) of Guarantor",
+    "2 years of corporate statements of all closely held companies, if applicable",
+    "Copy of signed purchase & sales agreement, if applicable",
+    "Rent Roll"
+  ];
+
   const renderTaskContent = () => {
     if (activeTask === 'upload-documents') {
       return (
@@ -468,6 +479,40 @@ const Dashboard = () => {
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="mb-6">
+                        <h3 className="text-sm font-medium text-gray-700 mb-3">Required Documents</h3>
+                        <div className="space-y-2 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                          {requiredDocuments.map((doc, index) => (
+                            <div 
+                              key={index} 
+                              className="flex items-center justify-between p-2 hover:bg-gray-100 transition-colors rounded-md"
+                            >
+                              <div className="flex items-center">
+                                <FileText className="h-4 w-4 text-[#a29f95] mr-3" />
+                                <p className="text-sm">{doc}</p>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-[#a29f95] hover:bg-gray-200"
+                                onClick={() => document.getElementById('fileUpload')?.click()}
+                              >
+                                <FileUp className="h-3 w-3 mr-1" />
+                                Upload
+                              </Button>
+                            </div>
+                          ))}
+                          <input 
+                            type="file" 
+                            id="fileUpload" 
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                handleDocumentUpload(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </div>
+
                         <DocumentUpload
                           title="Upload Additional Documentation"
                           description="Drag and drop files here or click to browse"
