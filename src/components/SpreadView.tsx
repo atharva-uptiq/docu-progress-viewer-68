@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FileText, Table, BarChart3, CreditCard, DollarSign, Building, LineChart, ChevronDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -69,28 +68,15 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
   const [statementType, setStatementType] = useState<'operating' | 'balance' | 'cashflow' | 'debtService' | 'propertyAnalysis' | 'rentRoll'>('operating');
   const [selectedSourceDoc, setSelectedSourceDoc] = useState<string>("doc1");
   
-  // Sample ratios data - expanded with more detailed entries
+  // Simplified list of key financial ratios (reduced to 7)
   const financialRatios: FinancialRatio[] = [
-    { name: 'Working Capital', value: '$500,000', description: 'Current Assets - Current Liabilities' },
-    { name: 'Current Ratio', value: '2.5x', description: 'Current Assets / Current Liabilities' },
-    { name: 'Quick Ratio', value: '1.8x', description: 'Liquid Assets / Current Liabilities' },
-    { name: 'Liquidity Ratio', value: '3.2x', description: 'Total Assets / Total Liabilities' },
-    { name: 'Debt-to-Equity Ratio', value: '0.7x', description: 'Total Debt / Shareholder Equity' },
-    { name: 'DSCR (P&I, Nano Debt Only)', value: '2.34x', description: 'Net Operating Income / Debt Service (Principal & Interest)' },
     { name: 'DSCR (P&I, All Debt)', value: '1.28x', description: 'Net Operating Income / Total Debt Service' },
-    { name: 'Tangible Net Worth', value: '$1,250,000', description: 'Total Assets - Intangible Assets - Total Liabilities' },
-    { name: 'Return on Assets (ROA)', value: '8.5%', description: 'Net Income / Total Assets' },
-    { name: 'Return on Equity (ROE)', value: '14.2%', description: 'Net Income / Shareholder Equity' },
-    { name: 'Operating Expense Ratio', value: '52.3%', description: 'Operating Expenses / Effective Gross Income' },
-    { name: 'Net Income Ratio', value: '40.0%', description: 'Net Income / Gross Revenue' },
-    { name: 'Leverage Ratio', value: '60.0%', description: 'Total Debt / Total Assets' },
+    { name: 'Debt-to-Equity Ratio', value: '0.7x', description: 'Total Debt / Shareholder Equity' },
+    { name: 'Loan-to-Value Ratio', value: '65%', description: 'Loan Amount / Property Value' },
+    { name: 'Debt Yield', value: '11.7%', description: 'Net Operating Income / Loan Amount' },
     { name: 'Interest Coverage Ratio', value: '3.6x', description: 'EBIT / Interest Expense' },
     { name: 'Break-Even Ratio', value: '78.4%', description: '(Operating Expenses + Debt Service) / Gross Income' },
-    { name: 'Fixed Charge Coverage Ratio', value: '2.1x', description: '(EBITDA - CAPEX) / (Interest + Principal)' },
-    { name: 'Cash-on-Cash Return', value: '9.2%', description: 'Annual Pre-Tax Cash Flow / Total Cash Invested' },
-    { name: 'Gross Rent Multiplier', value: '7.8x', description: 'Property Price / Annual Gross Rental Income' },
-    { name: 'Net Income Multiplier', value: '10.5x', description: 'Property Value / Net Operating Income' },
-    { name: 'Debt Yield', value: '11.7%', description: 'Net Operating Income / Loan Amount' },
+    { name: 'Current Ratio', value: '2.5x', description: 'Current Assets / Current Liabilities' }
   ];
 
   // Sample source documents - more detailed data
@@ -249,19 +235,22 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
         <div className="w-full pr-4 overflow-auto">
           {activeView === 'simplified' ? (
             <>
-              <h3 className="text-lg font-medium mb-4">Financial Ratios</h3>
-              <div className="grid grid-cols-1 gap-4">
+              <h3 className="text-lg font-medium mb-4">Key Financial Ratios</h3>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100">
                 {financialRatios.map((ratio, index) => (
                   <div 
                     key={index} 
-                    className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50"
+                    className={cn(
+                      "p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50",
+                      index !== financialRatios.length - 1 ? "border-b border-gray-100" : ""
+                    )}
                     onClick={() => handleStatementClick(ratio)}
                   >
-                    <div className="text-sm text-gray-500 mb-1">{ratio.name}</div>
+                    <div>
+                      <div className="font-medium">{ratio.name}</div>
+                      <div className="text-xs text-gray-500">{ratio.description}</div>
+                    </div>
                     <div className="text-lg font-medium text-[#a29f95]">{ratio.value}</div>
-                    {ratio.description && (
-                      <div className="text-xs text-gray-400 mt-1">{ratio.description}</div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -285,7 +274,6 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Render different content based on statement type */}
                     {statementType === 'operating' && (
                       <>
                         <tr>
