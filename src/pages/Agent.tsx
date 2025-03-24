@@ -309,11 +309,6 @@ const Agent = () => {
   };
 
   const handleUploadDocument = (file: File) => {
-    if (!file) {
-      console.error("No file provided");
-      return;
-    }
-
     const newDoc: Document = {
       id: Date.now().toString(),
       name: file.name,
@@ -692,10 +687,7 @@ const Agent = () => {
                   <ToggleGroupItem 
                     key={mode.value} 
                     value={mode.value} 
-                    className={cn(
-                      "flex items-center gap-2",
-                      viewMode === mode.value ? "text-white [&_svg]:text-white" : ""
-                    )}
+                    className="flex items-center gap-2"
                   >
                     {mode.icon}
                     <span>{mode.label}</span>
@@ -755,7 +747,7 @@ const Agent = () => {
                             </div>
                           </div>
                           <Button variant="ghost" size="sm">
-                            View
+                            <span className="text-xs text-gray-600">View</span>
                           </Button>
                         </div>
                       ))}
@@ -765,88 +757,97 @@ const Agent = () => {
               )}
               
               {viewMode === 'spreads' && (
-                <div className="max-w-4xl mx-auto">
+                <div className="w-full max-w-6xl mx-auto">
                   <SpreadView spreads={financialSpreads} />
                 </div>
               )}
               
               {viewMode === 'memo' && (
-                <div className="max-w-4xl mx-auto">
+                <div className="w-full max-w-6xl mx-auto">
                   <MemoView memoUrl={memoUrl} onUpload={handleMemoUpload} />
                 </div>
               )}
               
               {viewMode === 'pre-screen' && (
-                <div className="max-w-4xl mx-auto">
+                <div className="w-full max-w-6xl mx-auto">
                   <MemoView memoUrl={preScreenUrl} onUpload={handlePreScreenUpload} />
                 </div>
               )}
               
               {viewMode === 'loi' && (
-                <div className="max-w-4xl mx-auto">
+                <div className="w-full max-w-6xl mx-auto">
                   <MemoView memoUrl={loiUrl} onUpload={handleLoiUpload} />
                 </div>
               )}
               
               {viewMode === 'chat' && (
-                <div className="max-w-3xl mx-auto flex flex-col h-full">
-                  <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-                    {messages.map(message => (
-                      <div 
-                        key={message.id}
-                        className={cn(
-                          "flex",
-                          message.sender === 'user' ? "justify-end" : "justify-start"
-                        )}
-                      >
+                <div className="flex flex-col h-full max-w-4xl mx-auto">
+                  <div className="flex-1 overflow-y-auto pb-4">
+                    <div className="space-y-4">
+                      {messages.map(message => (
                         <div 
+                          key={message.id}
                           className={cn(
-                            "max-w-[80%] rounded-lg p-4",
-                            message.sender === 'user' 
-                              ? "bg-[#a29f95] text-white" 
-                              : "bg-gray-100 text-gray-800"
+                            "flex w-full",
+                            message.sender === 'user' ? "justify-end" : "justify-start"
                           )}
                         >
-                          <p>{message.content}</p>
-                          <p className="text-xs opacity-70 mt-1">
-                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                          <div 
+                            className={cn(
+                              "max-w-[80%] rounded-lg p-3",
+                              message.sender === 'user' 
+                                ? "bg-[#a29f95] text-white rounded-tr-none" 
+                                : "bg-gray-100 text-gray-800 rounded-tl-none"
+                            )}
+                          >
+                            {message.content}
+                            <div 
+                              className={cn(
+                                "text-xs mt-1",
+                                message.sender === 'user' ? "text-gray-200" : "text-gray-500"
+                              )}
+                            >
+                              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    
-                    {waitingForApplicationUpload && (
-                      <div className="my-4">
-                        <DocumentUpload 
-                          title="Upload Application"
-                          description="Please upload your completed application document"
-                          onUpload={handleUploadDocument}
-                        />
-                      </div>
-                    )}
+                      ))}
+                      
+                      {waitingForApplicationUpload && (
+                        <div className="mx-auto w-full max-w-md my-4">
+                          <DocumentUpload 
+                            title="Upload Application"
+                            description="Please upload your completed application document"
+                            onUpload={handleUploadDocument}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="border-t pt-4">
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {suggestionMessages.map((suggestion, index) => (
-                        <button
-                          key={index}
-                          className="text-xs bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 text-gray-600 transition-colors"
+                  <div className="border-t border-gray-200 pt-4">
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {suggestionMessages.map((suggestion, idx) => (
+                        <Button 
+                          key={idx} 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-xs text-gray-600 px-2 py-1 h-auto"
                           onClick={() => handleSuggestionClick(suggestion)}
                         >
                           {suggestion}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                     
-                    <div className="flex gap-2">
-                      <Textarea
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
+                    <div className="flex items-end gap-2">
+                      <Textarea 
                         placeholder="Type your message..."
+                        className="flex-1 resize-none"
                         rows={3}
-                        className="resize-none"
-                        onKeyDown={(e) => {
+                        value={newMessage}
+                        onChange={e => setNewMessage(e.target.value)}
+                        onKeyDown={e => {
                           if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
                             handleSendMessage();
@@ -854,10 +855,11 @@ const Agent = () => {
                         }}
                       />
                       <Button 
-                        className="self-end bg-[#a29f95] hover:bg-[#8a8880]"
+                        className="bg-[#a29f95] hover:bg-[#8a8880] mb-[3px]"
+                        size="icon"
                         onClick={handleSendMessage}
                       >
-                        Send
+                        <Upload className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -866,6 +868,13 @@ const Agent = () => {
             </div>
           </div>
         </div>
+      </div>
+      
+      <div className="p-6 border-t border-gray-200 bg-white">
+        <ProgressTracker 
+          currentStage={currentStage} 
+          onStageClick={handleStageClick}
+        />
       </div>
     </div>
   );

@@ -43,22 +43,11 @@ const mockApplications: Application[] = [
   { id: 'app-4', name: 'Investment Property Refinance', type: 'Investment', amount: 525000, date: '2023-10-22', status: 'underwriting', progress: 85 },
 ];
 
-const requiredDocuments = [
-  "Formation docs for entity owning property",
-  "Last 3 years of personal tax returns of Guarantor",
-  "Current personal financial statement of Guarantor",
-  "Liquidity statements (investment and depository) of Guarantor",
-  "2 years of corporate statements of all closely held companies, if applicable",
-  "Copy of signed purchase & sales agreement, if applicable",
-  "Rent Roll"
-];
-
 const Dashboard = () => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTask, setActiveTask] = useState<string | null>(null);
   const [uploadedDocuments, setUploadedDocuments] = useState<string[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(mockApplications[0]);
-  const [documentUploads, setDocumentUploads] = useState<Record<string, boolean>>({});
 
   const handleTaskClick = (taskId: string) => {
     setActiveTask(taskId);
@@ -81,12 +70,119 @@ const Dashboard = () => {
     }
   };
 
-  const handleRequiredDocUpload = (docName: string) => {
-    return (file: File) => {
-      setDocumentUploads(prev => ({ ...prev, [docName]: true }));
-      setUploadedDocuments(prev => [...prev, file.name]);
-      toast.success(`Successfully uploaded ${docName}`);
-    };
+  const renderTaskContent = () => {
+    if (activeTask === 'upload-documents') {
+      return (
+        <Card className="bg-white animate-slide-in">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-xl font-semibold text-gray-900">Upload Documents</CardTitle>
+              <CardDescription>Please upload the following documents to continue with your application</CardDescription>
+            </div>
+            <Button 
+              onClick={handleCloseTask}
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4 text-gray-500" />
+            </Button>
+          </CardHeader>
+          
+          <CardContent className="space-y-6">
+            <DocumentUpload
+              title="Proof of Income"
+              description="Upload your most recent pay stub, W-2, or tax return document."
+              onUpload={handleDocumentUpload}
+            />
+            
+            <DocumentUpload
+              title="Identity Verification"
+              description="Upload a valid government-issued ID (passport, driver's license)."
+              onUpload={handleDocumentUpload}
+            />
+            
+            <DocumentUpload
+              title="Additional Documentation"
+              description="Upload any supplemental files for to-do list items."
+              onUpload={handleDocumentUpload}
+            />
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    if (activeTask === 'verify-information') {
+      return (
+        <Card className="bg-white animate-slide-in">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-xl font-semibold text-gray-900">Verify Information</CardTitle>
+              <CardDescription>Your information has been verified</CardDescription>
+            </div>
+            <Button 
+              onClick={handleCloseTask}
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4 text-gray-500" />
+            </Button>
+          </CardHeader>
+          
+          <CardContent>
+            <div className="flex items-center bg-green-50 border border-green-100 rounded-md p-3">
+              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-green-800">Verification Complete</p>
+                <p className="text-xs text-green-600">Completed on June 15, 2023</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    if (activeTask === 'sign-agreements') {
+      return (
+        <Card className="bg-white animate-slide-in">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <div>
+              <CardTitle className="text-xl font-semibold text-gray-900">Sign Agreements</CardTitle>
+              <CardDescription>Please review and sign the following agreements</CardDescription>
+            </div>
+            <Button 
+              onClick={handleCloseTask}
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4 text-gray-500" />
+            </Button>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            <div className="border rounded-md p-4 hover:bg-gray-50 cursor-pointer transition-colors">
+              <h3 className="text-sm font-medium text-gray-900">Loan Agreement</h3>
+              <p className="text-xs text-gray-500 mt-1">Review and sign your home loan refinance agreement</p>
+              <button className="mt-3 text-xs font-medium text-[#a29f95]">View & Sign</button>
+            </div>
+            
+            <div className="border rounded-md p-4 hover:bg-gray-50 cursor-pointer transition-colors">
+              <h3 className="text-sm font-medium text-gray-900">Terms & Conditions</h3>
+              <p className="text-xs text-gray-500 mt-1">Review the terms and conditions for your account</p>
+              <button className="mt-3 text-xs font-medium text-[#a29f95]">View & Sign</button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+    
+    return null;
   };
 
   const formatDate = (dateStr: string) => {
@@ -212,7 +308,7 @@ const Dashboard = () => {
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div 
-                              className="bg-[#20703F] h-2.5 rounded-full" 
+                              className="bg-[#a29f95] h-2.5 rounded-full" 
                               style={{ width: `${selectedApplication.progress}%` }}
                             ></div>
                           </div>
@@ -240,7 +336,7 @@ const Dashboard = () => {
                       {selectedApplication && (
                         <>
                           <div>
-                            <h3 className="text-sm font-medium text-[#20703F] mb-3 flex items-center">
+                            <h3 className="text-sm font-medium text-[#a29f95] mb-3 flex items-center">
                               <User className="mr-2 h-4 w-4" />
                               Borrower Details
                             </h3>
@@ -265,7 +361,7 @@ const Dashboard = () => {
                           </div>
 
                           <div className="mt-4">
-                            <h3 className="text-sm font-medium text-[#20703F] mb-3 flex items-center">
+                            <h3 className="text-sm font-medium text-[#a29f95] mb-3 flex items-center">
                               <DollarSign className="mr-2 h-4 w-4" />
                               Loan Information
                             </h3>
@@ -302,7 +398,7 @@ const Dashboard = () => {
                           </div>
 
                           <div className="mt-4">
-                            <h3 className="text-sm font-medium text-[#20703F] mb-3 flex items-center">
+                            <h3 className="text-sm font-medium text-[#a29f95] mb-3 flex items-center">
                               <Clock className="mr-2 h-4 w-4" />
                               Application Timeline
                             </h3>
@@ -364,7 +460,7 @@ const Dashboard = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="text-[#20703F] border-[#20703F]"
+                        className="text-[#a29f95] border-[#a29f95]"
                       >
                         <FileUp className="h-4 w-4 mr-2" />
                         Upload Document
@@ -372,52 +468,6 @@ const Dashboard = () => {
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="mb-6">
-                        <h3 className="text-sm font-medium text-gray-700 mb-3">Required Documents</h3>
-                        <div className="space-y-2 mb-6">
-                          {requiredDocuments.map((doc, index) => (
-                            <div 
-                              key={index} 
-                              className={cn(
-                                "flex items-center justify-between p-3 rounded-lg border",
-                                documentUploads[doc] 
-                                  ? "bg-green-50 border-green-200" 
-                                  : "bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors"
-                              )}
-                            >
-                              <div className="flex items-center">
-                                <FileText className={cn(
-                                  "h-4 w-4 mr-3",
-                                  documentUploads[doc] ? "text-green-500" : "text-[#20703F]"
-                                )} />
-                                <div>
-                                  <p className="text-sm font-medium">{doc}</p>
-                                </div>
-                              </div>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className={cn(
-                                  "text-xs",
-                                  documentUploads[doc] ? "text-green-600" : "text-[#20703F]"
-                                )}
-                                onClick={() => {
-                                  const input = document.createElement('input');
-                                  input.type = 'file';
-                                  input.onchange = (e) => {
-                                    const files = (e.target as HTMLInputElement).files;
-                                    if (files && files.length > 0) {
-                                      handleRequiredDocUpload(doc)(files[0]);
-                                    }
-                                  };
-                                  input.click();
-                                }}
-                              >
-                                {documentUploads[doc] ? 'Uploaded' : 'Upload'}
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                        
                         <DocumentUpload
                           title="Upload Additional Documentation"
                           description="Drag and drop files here or click to browse"
@@ -442,7 +492,7 @@ const Dashboard = () => {
                               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                             >
                               <div className="flex items-center">
-                                <FileText className="h-4 w-4 text-[#20703F] mr-3" />
+                                <FileText className="h-4 w-4 text-[#a29f95] mr-3" />
                                 <div>
                                   <p className="text-sm font-medium">{doc}</p>
                                   <p className="text-xs text-gray-500">Uploaded today</p>
@@ -466,4 +516,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
