@@ -46,7 +46,7 @@ const MemoView: React.FC<MemoViewProps> = ({ memoUrl, onUpload }) => {
     <div className="h-full flex flex-col items-center justify-center">
       {memoUrl ? (
         <iframe
-          src={memoUrl}
+          src="/Credit-Memo.pdf"
           className="w-full h-[calc(100vh-120px)]"
           title="Memo Document"
         />
