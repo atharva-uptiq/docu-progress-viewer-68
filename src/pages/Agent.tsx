@@ -755,3 +755,121 @@ const Agent = () => {
                             </div>
                           </div>
                           <Button variant="ghost" size="sm">
+                            View
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {viewMode === 'spreads' && (
+                <div className="max-w-4xl mx-auto">
+                  <SpreadView spreads={financialSpreads} />
+                </div>
+              )}
+              
+              {viewMode === 'memo' && (
+                <div className="max-w-4xl mx-auto">
+                  <MemoView memoUrl={memoUrl} onUpload={handleMemoUpload} />
+                </div>
+              )}
+              
+              {viewMode === 'pre-screen' && (
+                <div className="max-w-4xl mx-auto">
+                  <MemoView memoUrl={preScreenUrl} onUpload={handlePreScreenUpload} />
+                </div>
+              )}
+              
+              {viewMode === 'loi' && (
+                <div className="max-w-4xl mx-auto">
+                  <MemoView memoUrl={loiUrl} onUpload={handleLoiUpload} />
+                </div>
+              )}
+              
+              {viewMode === 'chat' && (
+                <div className="max-w-3xl mx-auto flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                    {messages.map(message => (
+                      <div 
+                        key={message.id}
+                        className={cn(
+                          "flex",
+                          message.sender === 'user' ? "justify-end" : "justify-start"
+                        )}
+                      >
+                        <div 
+                          className={cn(
+                            "max-w-[80%] rounded-lg p-4",
+                            message.sender === 'user' 
+                              ? "bg-[#a29f95] text-white" 
+                              : "bg-gray-100 text-gray-800"
+                          )}
+                        >
+                          <p>{message.content}</p>
+                          <p className="text-xs opacity-70 mt-1">
+                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {waitingForApplicationUpload && (
+                      <div className="my-4">
+                        <DocumentUpload 
+                          title="Upload Application"
+                          description="Please upload your completed application document"
+                          onUpload={handleUploadDocument}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {suggestionMessages.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          className="text-xs bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1 text-gray-600 transition-colors"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Textarea
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Type your message..."
+                        rows={3}
+                        className="resize-none"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage();
+                          }
+                        }}
+                      />
+                      <Button 
+                        className="self-end bg-[#a29f95] hover:bg-[#8a8880]"
+                        onClick={handleSendMessage}
+                      >
+                        Send
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Agent;
+
