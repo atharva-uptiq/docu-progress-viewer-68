@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FileText, Table, BarChart3, CreditCard, DollarSign, Building, LineChart, ChevronDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,7 +33,6 @@ interface SpreadViewProps {
   spreads: SpreadItem[];
 }
 
-// Toggle Button Component
 interface ToggleViewButtonProps {
   active: boolean;
   onClick: () => void;
@@ -69,7 +67,6 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
   const [statementType, setStatementType] = useState<'operating' | 'balance' | 'cashflow' | 'debtService' | 'propertyAnalysis' | 'rentRoll'>('operating');
   const [selectedSourceDoc, setSelectedSourceDoc] = useState<string>("doc1");
   
-  // Sample ratios data - reduced to 6 key ratios
   const financialRatios: FinancialRatio[] = [
     { name: 'DSCR (P&I, Nano Debt Only)', value: '2.34x', description: 'Net Operating Income / Debt Service (Principal & Interest)' },
     { name: 'DSCR (P&I, All Debt)', value: '1.28x', description: 'Net Operating Income / Total Debt Service' },
@@ -79,7 +76,6 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
     { name: 'Cash-on-Cash Return', value: '9.2%', description: 'Annual Pre-Tax Cash Flow / Total Cash Invested' }
   ];
 
-  // Sample source documents
   const sourceDocuments: SourceDocument[] = [
     {
       id: "doc1",
@@ -180,12 +176,9 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
     { id: 'rentRoll', label: 'Rent Roll', icon: <BarChart3 size={16} /> },
   ];
 
-  // Find the currently selected source document
   const currentSourceDocument = sourceDocuments.find(doc => doc.id === selectedSourceDoc) || sourceDocuments[0];
 
   const handleStatementClick = (rowData: any) => {
-    // In a real app, this would navigate to the source document
-    // For now, we'll just select a random source document
     const randomDocIndex = Math.floor(Math.random() * sourceDocuments.length);
     setSelectedSourceDoc(sourceDocuments[randomDocIndex].id);
   };
@@ -198,48 +191,19 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
         </div>
 
         <div className="p-4">
-          <Tabs defaultValue="documents" className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="documents" className="flex-1">Document List</TabsTrigger>
-              <TabsTrigger value="preview" className="flex-1">Preview</TabsTrigger>
-            </TabsList>
-            <TabsContent value="documents" className="pt-4">
-              <div className="space-y-2">
-                {sourceDocuments.map((doc) => (
-                  <div 
-                    key={doc.id}
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-md cursor-pointer border",
-                      selectedSourceDoc === doc.id ? "border-[#a29f95] bg-gray-50" : "border-gray-200 hover:bg-gray-50"
-                    )}
-                    onClick={() => setSelectedSourceDoc(doc.id)}
-                  >
-                    <div className="flex items-center">
-                      <FileText className="h-5 w-5 text-gray-400 mr-3" />
-                      <div>
-                        <p className="text-sm font-medium">{doc.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {doc.extractedData.length} data points extracted
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="preview" className="pt-4">
-              <div className="bg-gray-100 p-6 rounded-lg flex items-center justify-center h-80">
-                <div className="text-center">
-                  <img 
-                    src={currentSourceDocument.imageUrl} 
-                    alt="Document Preview" 
-                    className="max-h-64 mx-auto mb-4" 
-                  />
-                  <p className="text-sm font-medium">{currentSourceDocument.name}</p>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+          <div className="bg-gray-100 p-6 rounded-lg flex items-center justify-center h-80">
+            <div className="text-center">
+              <img 
+                src={currentSourceDocument.imageUrl} 
+                alt="Document Preview" 
+                className="max-h-64 mx-auto mb-4" 
+              />
+              <p className="text-sm font-medium">{currentSourceDocument.name}</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-500 mt-3 text-center">
+            Financial data was extracted from this document
+          </p>
         </div>
 
         <div className="p-4 border-t border-gray-200">
@@ -277,7 +241,6 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
           />
         </div>
 
-        {/* Statement Type Selector - only show for detailed view */}
         {activeView === 'detailed' && (
           <div className="mb-4">
             <Select value={statementType} onValueChange={(value) => setStatementType(value as any)}>
@@ -299,9 +262,7 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
         )}
       </div>
 
-      {/* 2:1 Split layout */}
       <div className="flex flex-1 space-x-4 overflow-hidden">
-        {/* Left side - financial ratios/statement view - takes 2/3 of the space */}
         <div className="w-2/3 overflow-auto">
           {activeView === 'simplified' ? (
             <>
@@ -610,7 +571,6 @@ const SpreadView: React.FC<SpreadViewProps> = ({ spreads }) => {
           )}
         </div>
         
-        {/* Right side - source document panel - takes 1/3 of the space */}
         <div className="w-1/3 overflow-auto">
           {renderSourceDocumentPanel()}
         </div>
